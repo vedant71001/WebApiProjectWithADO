@@ -44,9 +44,9 @@ namespace TestWebApiApplication.Controllers
         [Route("UpdateGender")]
         public string UpdateGender(int id,string gender)
         {
-            string deleteQuery = $"UPDATE tblGender SET Gender = '{gender}' WHERE ID = {id}";
+            string query = $"UPDATE tblGender SET Gender = '{gender}' WHERE ID = {id}";
             SqlConnection con = new(_configuration.GetConnectionString("DefaultConnection"));
-            SqlCommand cmd = new(deleteQuery, con);
+            SqlCommand cmd = new(query, con);
             con.Open();
             cmd.ExecuteNonQuery();
             con.Close();
