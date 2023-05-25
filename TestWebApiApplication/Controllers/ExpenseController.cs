@@ -55,12 +55,56 @@ namespace TestWebApiApplication.Controllers
                 SqlCommand cmd = new(insertQuery, con);
                 con.Open();
                 cmd.ExecuteNonQuery();
+                cmd.CommandText = "select IDENT_CURRENT('expense') as [latest id]";
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                DataTable dt = new();
+                da.Fill(dt);
                 con.Close();
-                return Content("Expense added successfully");
+                return Content(dt.Rows[0]["latest id"].ToString()??"error");
             }
             catch (Exception ex)
             {
-                return Content("Expense add failed"+ex.Message);
+                return Content("Expense add failed: "+ex.Message);
+            }
+        }
+
+        [HttpPut]
+        [Route("EditExpense")]
+        public ContentResult EditExpense(Expense expense)
+        {
+            try
+            {
+                string updateQuery = $"UPDATE expense SET title='{expense.Title}', amount={expense.Amount}, date='{expense.Date.ToString("yyyy-MM-dd")}' WHERE id={expense.Id}";
+                SqlConnection con = new(_configuration.GetConnectionString("DefaultConnection"));
+                SqlCommand cmd = new(updateQuery, con);
+                con.Open();
+                cmd.ExecuteNonQuery();
+                con.Close();
+                return Content(expense.Id.ToString());
+            }
+            catch (Exception ex)
+            {
+                return Content("Expense add failed: " + ex.Message);
+            }
+        }
+
+        [HttpDelete]
+        [Route("DeleteExpense")]
+        public ContentResult DeleteExpense(long id)
+        {
+            try
+            {
+                string deleteQuery = $"DELETE FROM expense WHERE id = {id}";
+                SqlConnection con = new(_configuration.GetConnectionString("DefaultConnection"));
+                SqlCommand cmd = new(deleteQuery, con);
+                con.Open();
+                cmd.ExecuteNonQuery();
+                con.Close();
+                return Content(id.ToString());
+            }
+            catch (Exception ex)
+            {
+                return Content("Expense delete failed: " + ex.Message);
             }
         }
     }
